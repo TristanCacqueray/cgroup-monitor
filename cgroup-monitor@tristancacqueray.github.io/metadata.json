@@ -1,0 +1,10 @@
+{
+  "description": "Display cgroup informations",
+  "name": "cgroup-monitor",
+  "shell-version": [
+    "40.0"
+  ],
+  "url": "https://github.com/TristanCacqueray/cgroup-monitor",
+  "uuid": "cgroup-monitor@tristancacqueray.github.io",
+  "version": 0.1
+}

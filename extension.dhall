@@ -1,4 +1,5 @@
-(env:PGS).Extension::{
+( env:PGS ? ~/src/github.com/purescript-gjs/purescript-gnome-shell/package.dhall
+).Extension::{
 , name = "cgroup-monitor"
 , module = "CgroupMonitor"
 , domain = "tristancacqueray.github.io"
