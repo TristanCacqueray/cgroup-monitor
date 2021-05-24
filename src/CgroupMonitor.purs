@@ -6,9 +6,10 @@ import SystemdTop
 import Clutter.Actor as Actor
 import Clutter.ActorAlign as ActorAlign
 import Data.Array (take)
+import Data.Int (round)
 import Data.Maybe (Maybe(..), fromMaybe)
 import Data.String.Utils (words)
-import Data.Traversable (traverse, traverse_)
+import Data.Traversable (traverse_)
 import Effect (Effect)
 import Effect.Aff (Aff, launchAff_)
 import Effect.Class (liftEffect)
@@ -26,9 +27,9 @@ import St.Label as Label
 getAvailableMemory :: Aff (Maybe Int)
 getAvailableMemory = do
   meminfo <- words <$> File.readFile "/proc/meminfo"
-  pure (toGB <$> getNumber meminfo 7)
+  pure (round <<< toGB <$> getNumber meminfo 7)
   where
-  toGB n = n / (1024 * 1024)
+  toGB n = n / (1024.0 * 1024.0)
 
 worker :: Label.Label -> Effect Boolean
 worker label = do

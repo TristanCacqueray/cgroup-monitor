@@ -2,15 +2,14 @@ module SystemdTop where
 
 import Prelude
 import Control.Alternative (guard)
-import Data.Array (foldM, last, mapMaybe, (!!))
-import Data.Either (Either(..), fromLeft)
-import Data.Int (fromString, toNumber)
+import Data.Array (last, mapMaybe, (!!))
+import Data.Number (fromString)
 import Data.Maybe (Maybe)
-import Data.Number.Format (fixed, toStringWith)
 import Data.String (Pattern(..), split)
 import Data.String.Utils (endsWith, lines, words)
 import Effect.Aff (Aff)
 import Gio.Subprocess as Subprocess
+import CgroupMetric
 
 data CgOrder
   = Cpu
@@ -27,45 +26,15 @@ runCgTop order = lines <$> cmd
 
 type CgroupInfo
   = { name :: String
-    , tasks :: Int
-    , cpu :: Int
-    , mem :: Int
+    , tasks :: Number
+    , cpu :: Number
+    , mem :: Number
     }
 
 prettyCgroupInfo :: CgroupInfo -> String
-prettyCgroupInfo cg = cg.name <> ": " <> show cg.tasks <> " " <> prettyCpuTime cg.cpu <> " " <> prettyMem cg.mem
+prettyCgroupInfo cg = cg.name <> ": " <> prettyTasks cg.tasks <> " " <> prettyCpuTime cg.cpu <> " " <> prettyMem cg.mem
 
-prettyCpuTime :: Int -> String
-prettyCpuTime cpu = fromLeft "N/A" $ foldM go { value: toNumber cpu, unit: "usec" } units
-  where
-  units =
-    [ { name: "msec", sz: 1000.0 }
-    , { name: "sec", sz: 1000.0 }
-    , { name: "min", sz: 60.0 }
-    , { name: "hour", sz: 60.0 }
-    , { name: "max", sz: 0.0 }
-    ]
-
-  go :: { value :: Number, unit :: String } -> { name :: String, sz :: Number } -> Either String { value :: Number, unit :: String }
-  go acc nextUnit
-    | nextUnit.sz == 0.0 || acc.value < nextUnit.sz = Left $ toStringWith (fixed 3) acc.value <> " " <> acc.unit
-    | otherwise = Right $ { value: acc.value / nextUnit.sz, unit: nextUnit.name }
-
-prettyMem :: Int -> String
-prettyMem mem = fromLeft "N/A" $ foldM go { value: toNumber (mem / 1024), unit: "KB" } units
-  where
-  units =
-    [ { name: "MB", sz: 1024.0 }
-    , { name: "GB", sz: 1024.0 }
-    , { name: "max", sz: 0.0 }
-    ]
-
-  go :: { value :: Number, unit :: String } -> { name :: String, sz :: Number } -> Either String { value :: Number, unit :: String }
-  go acc nextUnit
-    | nextUnit.sz == 0.0 || acc.value < nextUnit.sz = Left $ toStringWith (fixed 3) acc.value <> " " <> acc.unit
-    | otherwise = Right $ { value: acc.value / nextUnit.sz, unit: nextUnit.name }
-
-getNumber :: Array String -> Int -> Maybe Int
+getNumber :: Array String -> Int -> Maybe Number
 getNumber arr pos = join $ fromString <$> arr !! pos
 
 parse :: Array String -> Array CgroupInfo
