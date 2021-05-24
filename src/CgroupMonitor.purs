@@ -1,13 +1,14 @@
 module CgroupMonitor where
 
 import Prelude
+import SystemdTop
 
 import Clutter.Actor as Actor
 import Clutter.ActorAlign as ActorAlign
-import Data.Array ((!!))
-import Data.Int (fromString)
+import Data.Array (take)
 import Data.Maybe (Maybe(..), fromMaybe)
 import Data.String.Utils (words)
+import Data.Traversable (traverse, traverse_)
 import Effect (Effect)
 import Effect.Aff (Aff, launchAff_)
 import Effect.Class (liftEffect)
@@ -27,8 +28,6 @@ getAvailableMemory = do
   meminfo <- words <$> File.readFile "/proc/meminfo"
   pure (toGB <$> getNumber meminfo 7)
   where
-  getNumber arr pos = join $ fromString <$> arr !! pos
-
   toGB n = n / (1024 * 1024)
 
 worker :: Label.Label -> Effect Boolean
@@ -81,8 +80,11 @@ main = case GJS.argv of
     where
     go loop = do
       availMem <- fromMaybe 0 <$> getAvailableMemory
+      cgTop <- parse <$> runCgTop Memory
       liftEffect
         $ do
             GJS.log availMem
+            traverse_ (GJS.log <<< prettyCgroupInfo) (take 10 cgTop)
+            -- GJS.log $ show (take 3 cgTop)
             GLib.MainLoop.quit loop
   _ -> pure mempty

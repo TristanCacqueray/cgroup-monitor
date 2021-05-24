@@ -2,13 +2,18 @@
 , dependencies =
   [ "aff"
   , "arrays"
+  , "control"
   , "effect"
+  , "either"
+  , "foldable-traversable"
   , "gjs"
   , "gnome-shell"
   , "integers"
   , "maybe"
+  , "numbers"
   , "prelude"
   , "psci-support"
+  , "strings"
   , "stringutils"
   ]
 , packages =
