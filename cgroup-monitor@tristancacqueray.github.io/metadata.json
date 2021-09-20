@@ -2,7 +2,8 @@
   "description": "Display cgroup informations",
   "name": "cgroup-monitor",
   "shell-version": [
-    "40.0"
+    "40.0",
+    "41"
   ],
   "url": "https://github.com/TristanCacqueray/cgroup-monitor",
   "uuid": "cgroup-monitor@tristancacqueray.github.io",
