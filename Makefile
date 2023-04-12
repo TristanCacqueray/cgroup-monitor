@@ -20,7 +20,8 @@ dist-schemas:
 
 .PHONY: dist-extension
 dist-extension:
-	env PGS=$(PGS) spago bundle-app -m $(MAIN) --to $(NAME)/extension.js
+	env PGS=$(PGS) spago bundle-module -m $(MAIN) --to $(NAME)/extension.js
+	sed -e '/^export {/,/^};/d' -i $(NAME)/extension.js
 	echo "($(PGS)).boot ./extension.dhall" | env PGS=$(PGS) dhall text >> $(NAME)/extension.js
 
 .PHONY: install

@@ -47,13 +47,13 @@ type Env
     }
 
 extension :: ExtensionSimple Env
-extension = { enable, disable }
+extension = { extension_enable, extension_disable }
   where
   onClick = do
     GJS.log "clicked!"
     pure true
 
-  enable = do
+  extension_enable = do
     -- ui
     button <- PanelMenu.newButton 0.0 "CgroupMonitor" false
     box <- BoxLayout.new
@@ -68,7 +68,7 @@ extension = { enable, disable }
     timer <- GLib.timeoutAdd 5000 (worker label)
     pure { button, timer }
 
-  disable env = do
+  extension_disable env = do
     Actor.destroy env.button
     GLib.sourceRemove env.timer
 
