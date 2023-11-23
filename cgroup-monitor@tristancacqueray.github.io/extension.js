@@ -21,7 +21,8 @@ var add_child = function() {
 };
 
 // output/Clutter.ActorAlign/foreign.js
-var ActorAlign = imports.gi.Clutter.ActorAlign;
+import Clutter from "gi://Clutter";
+var ActorAlign = Clutter.ActorAlign;
 var fill = ActorAlign.FILL;
 var start = ActorAlign.START;
 var center = ActorAlign.CENTER;
@@ -2268,12 +2269,12 @@ var argv = ARGV;
 var log2 = (msg) => () => log2(msg);
 
 // output/GLib/foreign.js
-var GLib = imports.gi.GLib;
+import GLib from "gi://GLib";
 var timeoutAdd = (interval) => (cb) => () => GLib.timeout_add(GLib.PRIORITY_DEFAULT, interval, cb);
 var sourceRemove = (source2) => () => GLib.source_remove(source2);
 
 // output/GLib.MainLoop/foreign.js
-var GLib2 = imports.gi.GLib;
+import GLib2 from "gi://GLib";
 var new_ = () => GLib2.MainLoop.new(null, false);
 var run3 = (loop) => () => loop.run();
 var quit = (loop) => () => loop.quit();
@@ -2282,7 +2283,8 @@ var quit = (loop) => () => loop.quit();
 var $$new2 = new_;
 
 // output/Gio.Raw.File/foreign.js
-var File = imports.gi.Gio.File;
+import Gio from "gi://Gio";
+var File = Gio.File;
 var ByteArray = imports.byteArray;
 var new_for_path = (path) => () => File.new_for_path(path);
 var load_contents_async_impl = (file) => (cancellable) => (cb) => () => file.load_contents_async(
@@ -2350,38 +2352,22 @@ var readFile = function(path) {
 };
 
 // output/Gnome.UI.Main.Panel/foreign.js
-var Main;
-try {
-  Main = imports.ui.main;
-} catch (_) {
-}
+import * as Main from "resource:///org/gnome/shell/ui/main.js";
 var addToStatusArea = (role) => (indicator) => () => Main.panel.addToStatusArea(role, indicator);
 
 // output/Gnome.UI.PanelMenu/foreign.js
-var PanelMenu;
-try {
-  PanelMenu = imports.ui.panelMenu;
-} catch (_) {
-}
+import * as PanelMenu from "resource:///org/gnome/shell/ui/panelMenu.js";
 var newButton = (alignment) => (name2) => (dontCreateMenu) => () => new PanelMenu.Button(alignment, name2, dontCreateMenu);
 
 // output/St.BoxLayout/foreign.js
-var St;
-try {
-  St = imports.gi.St;
-} catch (_) {
-}
+import St from "gi://St";
 var new_2 = () => St.BoxLayout.new();
 
 // output/St.BoxLayout/index.js
 var $$new3 = new_2;
 
 // output/St.Label/foreign.js
-var St2;
-try {
-  St2 = imports.gi.St;
-} catch (_) {
-}
+import St2 from "gi://St";
 var new_3 = (txt) => () => St2.Label.new(txt);
 var set_text = (label) => (txt) => () => label.set_text(txt);
 
@@ -2534,7 +2520,8 @@ var prettyCpuTime = function(cpu) {
 };
 
 // output/Gio.Raw.Subprocess/foreign.js
-var Subprocess = imports.gi.Gio.Subprocess;
+import Gio2 from "gi://Gio";
+var Subprocess = Gio2.Subprocess;
 var new_4 = (argv2) => (flags) => () => Subprocess.new(argv2, flags);
 var communicate_utf8_async_impl = (proc) => (stdin) => (cancellable) => (cb) => () => proc.communicate_utf8_async(
   stdin,
@@ -2560,7 +2547,8 @@ var communicate_utf8_async = function(proc) {
 };
 
 // output/Gio.Raw.SubprocessFlags/foreign.js
-var SubprocessFlags = imports.gi.Gio.SubprocessFlags;
+import Gio3 from "gi://Gio";
+var SubprocessFlags = Gio3.SubprocessFlags;
 var none = SubprocessFlags.NONE;
 var stdin_pipe = SubprocessFlags.STDIN_PIPE;
 var stdout_pipe = SubprocessFlags.STDOUT_PIPE;
@@ -2774,6 +2762,8 @@ var extension = /* @__PURE__ */ function() {
 
 // necessary footer to transform a spago build into a valid gnome extension
 let CgroupMonitorEnv = null;
-function init() {}
-function enable() { CgroupMonitorEnv = extension.extension_enable(); }
-function disable() { extension.extension_disable(CgroupMonitorEnv)(); }
+import {Extension} from 'resource:///org/gnome/shell/extensions/extension.js';
+export default class CgroupMonitor extends Extension {
+  enable() { CgroupMonitorEnv = extension.extension_enable(); }
+  disable() { extension.extension_disable(CgroupMonitorEnv)(); }
+}
