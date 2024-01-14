@@ -185,26 +185,22 @@ var join = function(dictBind) {
 };
 
 // output/Data.Array/foreign.js
-var replicateFill = function(count) {
-  return function(value) {
-    if (count < 1) {
-      return [];
-    }
-    var result = new Array(count);
-    return result.fill(value);
-  };
+var replicateFill = function(count, value) {
+  if (count < 1) {
+    return [];
+  }
+  var result = new Array(count);
+  return result.fill(value);
 };
-var replicatePolyfill = function(count) {
-  return function(value) {
-    var result = [];
-    var n = 0;
-    for (var i = 0; i < count; i++) {
-      result[n++] = value;
-    }
-    return result;
-  };
+var replicatePolyfill = function(count, value) {
+  var result = [];
+  var n = 0;
+  for (var i = 0; i < count; i++) {
+    result[n++] = value;
+  }
+  return result;
 };
-var replicate = typeof Array.prototype.fill === "function" ? replicateFill : replicatePolyfill;
+var replicateImpl = typeof Array.prototype.fill === "function" ? replicateFill : replicatePolyfill;
 var fromFoldableImpl = function() {
   function Cons(head, tail) {
     this.head = head;
@@ -226,30 +222,18 @@ var fromFoldableImpl = function() {
     }
     return result;
   }
-  return function(foldr2) {
-    return function(xs) {
-      return listToArray(foldr2(curryCons)(emptyList)(xs));
-    };
+  return function(foldr2, xs) {
+    return listToArray(foldr2(curryCons)(emptyList)(xs));
   };
 }();
 var length = function(xs) {
   return xs.length;
 };
-var unconsImpl = function(empty2) {
-  return function(next) {
-    return function(xs) {
-      return xs.length === 0 ? empty2({}) : next(xs[0])(xs.slice(1));
-    };
-  };
+var unconsImpl = function(empty2, next, xs) {
+  return xs.length === 0 ? empty2({}) : next(xs[0])(xs.slice(1));
 };
-var indexImpl = function(just) {
-  return function(nothing) {
-    return function(xs) {
-      return function(i) {
-        return i < 0 || i >= xs.length ? nothing : just(xs[i]);
-      };
-    };
-  };
+var indexImpl = function(just, nothing, xs, i) {
+  return i < 0 || i >= xs.length ? nothing : just(xs[i]);
 };
 var sortByImpl = function() {
   function mergeFromTo(compare2, fromOrdering, xs1, xs2, from2, to) {
@@ -287,25 +271,17 @@ var sortByImpl = function() {
       xs1[k++] = xs2[j++];
     }
   }
-  return function(compare2) {
-    return function(fromOrdering) {
-      return function(xs) {
-        var out;
-        if (xs.length < 2)
-          return xs;
-        out = xs.slice(0);
-        mergeFromTo(compare2, fromOrdering, out, xs.slice(0), 0, xs.length);
-        return out;
-      };
-    };
+  return function(compare2, fromOrdering, xs) {
+    var out;
+    if (xs.length < 2)
+      return xs;
+    out = xs.slice(0);
+    mergeFromTo(compare2, fromOrdering, out, xs.slice(0), 0, xs.length);
+    return out;
   };
 }();
-var slice = function(s) {
-  return function(e) {
-    return function(l) {
-      return l.slice(s, e);
-    };
-  };
+var sliceImpl = function(s, e, l) {
+  return l.slice(s, e);
 };
 
 // output/Data.Semigroup/index.js
@@ -833,17 +809,11 @@ var sortByImpl2 = function() {
       xs1[k++] = xs2[j++];
     }
   }
-  return function(compare2) {
-    return function(fromOrdering) {
-      return function(xs) {
-        return function() {
-          if (xs.length < 2)
-            return xs;
-          mergeFromTo(compare2, fromOrdering, xs, xs.slice(0), 0, xs.length);
-          return xs;
-        };
-      };
-    };
+  return function(compare2, fromOrdering, xs) {
+    if (xs.length < 2)
+      return xs;
+    mergeFromTo(compare2, fromOrdering, xs, xs.slice(0), 0, xs.length);
+    return xs;
   };
 }();
 
@@ -936,6 +906,28 @@ var foldableArray = {
   }
 };
 
+// output/Data.Function.Uncurried/foreign.js
+var runFn3 = function(fn) {
+  return function(a) {
+    return function(b) {
+      return function(c) {
+        return fn(a, b, c);
+      };
+    };
+  };
+};
+var runFn4 = function(fn) {
+  return function(a) {
+    return function(b) {
+      return function(c) {
+        return function(d) {
+          return fn(a, b, c, d);
+        };
+      };
+    };
+  };
+};
+
 // output/Data.Traversable/foreign.js
 var traverseArrayImpl = function() {
   function array1(a) {
@@ -987,10 +979,11 @@ var traverseArrayImpl = function() {
 }();
 
 // output/Data.Array/index.js
+var slice = /* @__PURE__ */ runFn3(sliceImpl);
 var take = function(n) {
   return function(xs) {
-    var $149 = n < 1;
-    if ($149) {
+    var $152 = n < 1;
+    if ($152) {
       return [];
     }
     ;
@@ -1001,7 +994,7 @@ var singleton2 = function(a) {
   return [a];
 };
 var index = /* @__PURE__ */ function() {
-  return indexImpl(Just.create)(Nothing.value);
+  return runFn4(indexImpl)(Just.create)(Nothing.value);
 }();
 var last = function(xs) {
   return index(xs)(length(xs) - 1 | 0);
@@ -1011,7 +1004,7 @@ var foldM = function(dictMonad) {
   var bind1 = bind(dictMonad.Bind1());
   return function(f) {
     return function(b) {
-      return unconsImpl(function(v) {
+      return runFn3(unconsImpl)(function(v) {
         return pure12(b);
       })(function(a) {
         return function(as) {
@@ -1026,9 +1019,9 @@ var foldM = function(dictMonad) {
 var concatMap = /* @__PURE__ */ flip(/* @__PURE__ */ bind(bindArray));
 var mapMaybe = function(f) {
   return concatMap(function() {
-    var $191 = maybe([])(singleton2);
-    return function($192) {
-      return $191(f($192));
+    var $189 = maybe([])(singleton2);
+    return function($190) {
+      return $189(f($190));
     };
   }());
 };
@@ -2084,24 +2077,29 @@ var parallel = function(dict) {
 var identity5 = /* @__PURE__ */ identity(categoryFn);
 var parTraverse_ = function(dictParallel) {
   var sequential2 = sequential(dictParallel);
-  var traverse_3 = traverse_(dictParallel.Applicative1());
-  var parallel2 = parallel(dictParallel);
-  return function(dictFoldable) {
-    var traverse_1 = traverse_3(dictFoldable);
-    return function(f) {
-      var $48 = traverse_1(function($50) {
-        return parallel2(f($50));
-      });
-      return function($49) {
-        return sequential2($48($49));
+  var parallel3 = parallel(dictParallel);
+  return function(dictApplicative) {
+    var traverse_3 = traverse_(dictApplicative);
+    return function(dictFoldable) {
+      var traverse_1 = traverse_3(dictFoldable);
+      return function(f) {
+        var $51 = traverse_1(function($53) {
+          return parallel3(f($53));
+        });
+        return function($52) {
+          return sequential2($51($52));
+        };
       };
     };
   };
 };
 var parSequence_ = function(dictParallel) {
   var parTraverse_1 = parTraverse_(dictParallel);
-  return function(dictFoldable) {
-    return parTraverse_1(dictFoldable)(identity5);
+  return function(dictApplicative) {
+    var parTraverse_2 = parTraverse_1(dictApplicative);
+    return function(dictFoldable) {
+      return parTraverse_2(dictFoldable)(identity5);
+    };
   };
 };
 
@@ -2179,8 +2177,8 @@ var launchAff = function(aff) {
     return fiber;
   };
 };
-var launchAff_ = function($74) {
-  return $$void2(launchAff($74));
+var launchAff_ = function($75) {
+  return $$void2(launchAff($75));
 };
 var applyParAff = {
   apply: _parAffApply,
@@ -2216,37 +2214,28 @@ var $lazy_applyAff = /* @__PURE__ */ $runtime_lazy2("applyAff", "Effect.Aff", fu
     }
   };
 });
+var applyAff = /* @__PURE__ */ $lazy_applyAff(73);
 var pure2 = /* @__PURE__ */ pure(applicativeAff);
-var monadEffectAff = {
-  liftEffect: _liftEffect,
-  Monad0: function() {
-    return monadAff;
-  }
-};
 var parallelAff = {
   parallel: unsafeCoerce2,
   sequential: _sequential,
-  Monad0: function() {
-    return monadAff;
+  Apply0: function() {
+    return applyAff;
   },
-  Applicative1: function() {
-    return $lazy_applicativeParAff(0);
+  Apply1: function() {
+    return applyParAff;
   }
 };
-var $lazy_applicativeParAff = /* @__PURE__ */ $runtime_lazy2("applicativeParAff", "Effect.Aff", function() {
-  return {
-    pure: function() {
-      var $82 = parallel(parallelAff);
-      return function($83) {
-        return $82(pure2($83));
-      };
-    }(),
-    Apply0: function() {
-      return applyParAff;
-    }
-  };
-});
-var parSequence_2 = /* @__PURE__ */ parSequence_(parallelAff)(foldableArray);
+var parallel2 = /* @__PURE__ */ parallel(parallelAff);
+var applicativeParAff = {
+  pure: function($76) {
+    return parallel2(pure2($76));
+  },
+  Apply0: function() {
+    return applyParAff;
+  }
+};
+var parSequence_2 = /* @__PURE__ */ parSequence_(parallelAff)(applicativeParAff)(foldableArray);
 var semigroupCanceler = {
   append: function(v) {
     return function(v1) {
@@ -2254,6 +2243,12 @@ var semigroupCanceler = {
         return parSequence_2([v(err), v1(err)]);
       };
     };
+  }
+};
+var monadEffectAff = {
+  liftEffect: _liftEffect,
+  Monad0: function() {
+    return monadAff;
   }
 };
 var nonCanceler = /* @__PURE__ */ $$const(/* @__PURE__ */ pure2(unit));
@@ -2266,7 +2261,7 @@ var monoidCanceler = {
 
 // output/GJS/foreign.js
 var argv = ARGV;
-var log2 = (msg) => () => log2(msg);
+var log2 = (msg) => () => console.log(msg);
 
 // output/GLib/foreign.js
 import GLib from "gi://GLib";

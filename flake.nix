@@ -1,18 +1,6 @@
 {
-  inputs = { nixpkgs.url = "github:nixos/nixpkgs"; };
+  inputs = { purescript-gnome-shell.url = "github:purescript-gjs/purescript-gnome-shell"; };
 
-  outputs = { self, nixpkgs }:
-    let pkgs = nixpkgs.legacyPackages.x86_64-linux.pkgs;
-    in {
-      devShells.x86_64-linux.default = pkgs.mkShell {
-        buildInputs = [
-          pkgs.gnumake
-          pkgs.dhall
-          pkgs.dhall-json
-          pkgs.spago
-          pkgs.purescript
-          pkgs.esbuild
-        ];
-      };
-    };
+  outputs = { self, purescript-gnome-shell }:
+    purescript-gnome-shell;
 }

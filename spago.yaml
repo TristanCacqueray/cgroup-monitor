@@ -1,0 +1,31 @@
+package:
+  name: cgroup-monitor
+  dependencies:
+    - aff
+    - arrays
+    - control
+    - effect
+    - either
+    - foldable-traversable
+    - gjs
+    - gnome-shell
+    - integers
+    - maybe
+    - numbers
+    - prelude
+    - strings
+    - stringutils
+    - test-unit
+  bundle:
+    type: module
+    extra_args:
+      - "--external:gi://*"
+      - "--external:resource://*"
+workspace:
+  package_set:
+    registry: 48.0.0
+  extra_packages:
+    gjs:
+      path: ../../purescript-gjs/purescript-gjs
+    gnome-shell:
+      path: ../../purescript-gjs/purescript-gnome-shell
