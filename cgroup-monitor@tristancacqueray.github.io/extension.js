@@ -723,7 +723,7 @@ var bindE = function(a) {
 };
 
 // output/Effect/index.js
-var $runtime_lazy = function(name2, moduleName, init) {
+var $runtime_lazy = function(name2, moduleName, init2) {
   var state2 = 0;
   var val;
   return function(lineNumber) {
@@ -732,7 +732,7 @@ var $runtime_lazy = function(name2, moduleName, init) {
     if (state2 === 1)
       throw new ReferenceError(name2 + " was needed before it finished initializing (module " + moduleName + ", line " + lineNumber + ")", moduleName, lineNumber);
     state2 = 1;
-    val = init();
+    val = init2();
     state2 = 2;
     return val;
   };
@@ -819,9 +819,9 @@ var sortByImpl2 = function() {
 
 // output/Data.Foldable/foreign.js
 var foldrArray = function(f) {
-  return function(init) {
+  return function(init2) {
     return function(xs) {
-      var acc = init;
+      var acc = init2;
       var len = xs.length;
       for (var i = len - 1; i >= 0; i--) {
         acc = f(xs[i])(acc);
@@ -831,9 +831,9 @@ var foldrArray = function(f) {
   };
 };
 var foldlArray = function(f) {
-  return function(init) {
+  return function(init2) {
     return function(xs) {
-      var acc = init;
+      var acc = init2;
       var len = xs.length;
       for (var i = 0; i < len; i++) {
         acc = f(acc)(xs[i]);
@@ -2104,7 +2104,7 @@ var parSequence_ = function(dictParallel) {
 };
 
 // output/Effect.Aff/index.js
-var $runtime_lazy2 = function(name2, moduleName, init) {
+var $runtime_lazy2 = function(name2, moduleName, init2) {
   var state2 = 0;
   var val;
   return function(lineNumber) {
@@ -2113,7 +2113,7 @@ var $runtime_lazy2 = function(name2, moduleName, init) {
     if (state2 === 1)
       throw new ReferenceError(name2 + " was needed before it finished initializing (module " + moduleName + ", line " + lineNumber + ")", moduleName, lineNumber);
     state2 = 1;
-    val = init();
+    val = init2();
     state2 = 2;
     return val;
   };
@@ -2268,11 +2268,23 @@ import GLib from "gi://GLib";
 var timeoutAdd = (interval) => (cb) => () => GLib.timeout_add(GLib.PRIORITY_DEFAULT, interval, cb);
 var sourceRemove = (source2) => () => GLib.source_remove(source2);
 
+// output/Data.Nullable/foreign.js
+var nullImpl = null;
+function notNull(x) {
+  return x;
+}
+
+// output/Data.Nullable/index.js
+var toNullable = /* @__PURE__ */ maybe(nullImpl)(notNull);
+
 // output/GLib.MainLoop/foreign.js
 import GLib2 from "gi://GLib";
 var new_ = () => GLib2.MainLoop.new(null, false);
 var run3 = (loop) => () => loop.run();
 var quit = (loop) => () => loop.quit();
+
+// output/Gio.Async/foreign.js
+import GLib3 from "gi://GLib";
 
 // output/GLib.MainLoop/index.js
 var $$new2 = new_;
@@ -2291,15 +2303,6 @@ var load_contents_finish_impl = (mkTuple) => (file) => (res) => () => {
   return mkTuple(ok)(contents)(etag_out);
 };
 var contentsToString = (arr) => ByteArray.toString(arr);
-
-// output/Data.Nullable/foreign.js
-var nullImpl = null;
-function notNull(x) {
-  return x;
-}
-
-// output/Data.Nullable/index.js
-var toNullable = /* @__PURE__ */ maybe(nullImpl)(notNull);
 
 // output/Data.Tuple.Nested/index.js
 var tuple3 = function(a) {
@@ -2352,6 +2355,7 @@ var addToStatusArea = (role) => (indicator) => () => Main.panel.addToStatusArea(
 
 // output/Gnome.UI.PanelMenu/foreign.js
 import * as PanelMenu from "resource:///org/gnome/shell/ui/panelMenu.js";
+import * as BoxPointer from "resource:///org/gnome/shell/ui/boxpointer.js";
 var newButton = (alignment) => (name2) => (dontCreateMenu) => () => new PanelMenu.Button(alignment, name2, dontCreateMenu);
 
 // output/St.BoxLayout/foreign.js
