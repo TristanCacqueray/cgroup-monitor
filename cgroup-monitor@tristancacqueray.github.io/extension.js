@@ -2705,7 +2705,6 @@ var main = /* @__PURE__ */ function() {
 }();
 var worker = function(label) {
   return function __do() {
-    log2("running...")();
     launchAff_(bind3(getAvailableMemory)(function(avail) {
       return liftEffect4(function() {
         if (avail instanceof Just) {

@@ -33,7 +33,7 @@ getAvailableMemory = do
 
 worker :: Label.Label -> Effect Boolean
 worker label = do
-  GJS.log "running..."
+  -- GJS.log "running..."
   launchAff_ $ do
     avail <- getAvailableMemory
     liftEffect $ case avail of
