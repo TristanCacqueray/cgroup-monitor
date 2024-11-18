@@ -3,7 +3,9 @@
   "name": "cgroup-monitor",
   "shell-version": [
     "45",
-    "46"
+    "46",
+    "47",
+    "48"
   ],
   "url": "https://github.com/TristanCacqueray/cgroup-monitor",
   "uuid": "cgroup-monitor@tristancacqueray.github.io",
